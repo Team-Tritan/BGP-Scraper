@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
+debug = False
+
 
 def main():
     # Define the custom user agent
@@ -15,6 +17,10 @@ def main():
     options.add_argument("--no-sandbox")
     options.add_argument('--headless')
     options.binary_location = "/usr/bin/chromium-browser"
+
+    if debug:
+        options.add_argument("--remote-debugging-port=9222")
+
     driver = webdriver.Chrome(options=options)
 
     # Get le user input (which asn they wanna see??)
