@@ -9,9 +9,9 @@ debug = False
 
 def main():
     # Does the user want to convert .json to .csv, or lookup an ASN?
-    print("1. Convert .json to .csv")
-    print("2. Lookup an ASN")
-    print("3. Lookup prefixes by ASN dump")
+    print("1. Convert .json to .csv (peers or prefixes)")
+    print("2. Lookup an ASN (peers or prefixes)")
+    print("3. Lookup prefixes by ASN dump (json peers file)")
     choice = input("Enter your choice: ").strip()
 
     if choice == "1":
