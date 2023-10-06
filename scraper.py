@@ -9,6 +9,7 @@ def get_user_choice():
     print("1. Convert .json to .csv (peers or prefixes)")
     print("2. Lookup an ASN (peers or prefixes)")
     print("3. Lookup prefixes by ASN dump (json peers file)")
+    print ("4. Generate iptables script from json peers file")
     return input("Enter your choice: ").strip()
 
 def read_json_file(filename):
@@ -20,6 +21,16 @@ def write_csv_file(output_filename, data, headers):
         f.write(",".join(headers) + "\n")
         for item in data:
             f.write(",".join([str(item[field]) for field in headers]) + "\n")
+
+def generate_iptables_script(data, script_filename):
+    with open(script_filename, 'w') as script_file:
+        script_file.write("#!/bin/bash\n\n")
+        for item in data:
+            if 'ip' in item:
+                ip_address = item['ip']
+                script_file.write(f"iptables -A INPUT -s {ip_address} -j DROP\n")
+                script_file.write(f"iptables -A OUTPUT -d {ip_address} -j DROP\n")
+        print(f"iptables rules written to {script_filename}")
 
 def main():
     choice = get_user_choice()
@@ -138,6 +149,9 @@ def main():
                 f.write("\n".join(prefixes) + "\n")
 
         driver.quit()
+
+    if choice == "4":
+        generate_iptables_script(dumps, 'iptables_rules.sh')
 
 if __name__ == "__main__":
     try:
