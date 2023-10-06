@@ -5,15 +5,14 @@ import json
 
 debug = False
 
-# Options selector
+# Function to get user's choice
 def get_user_choice():
-    print("1. Convert .json to .csv (peers or prefixes)")
-    print("2. Lookup an ASN (peers or prefixes)")
-    print("3. Find prefixes from ASN dump (json peers file)")
-    print("4. Generate iptables script from ASN dump (json peers dump)")
+    print("1. Lookup an ASN (peers or prefixes)")
+    print("2. Find prefixes from ASN dump (json peers file)")
+    print("3. Generate iptables script from ASN dump (json peers dump)")
     return input("Enter your choice: ").strip()
 
-# Read an output file by name
+# Function to read a JSON file by name
 def read_json_file(filename):
     try:
         with open(filename, 'r') as f:
@@ -25,17 +24,7 @@ def read_json_file(filename):
         print(f"Error decoding JSON file: {str(e)}")
         return None
 
-# Convert json to CSV
-def write_csv_file(output_filename, data, headers):
-    try:
-        with open(output_filename, 'w') as f:
-            f.write(",".join(headers) + "\n")
-            for item in data:
-                f.write(",".join([str(item[field]) for field in headers]) + "\n")
-    except Exception as e:
-        print(f"Error writing to {output_filename}: {str(e)}")
-
-# Generate bash script to block ips
+# Function to generate iptables script from JSON data
 def generate_iptables_script(data, script_filename):
     try:
         with open(script_filename, 'w') as script_file:
@@ -58,27 +47,12 @@ def generate_iptables_script(data, script_filename):
     except Exception as e:
         print(f"Error generating iptables script: {str(e)}")
 
+# Main function
 def main():
-    # Get the users choice
+    # Get the user's choice
     choice = get_user_choice()
 
-    # Convert json to CSV
-    if choice == "1":
-        filename = input("Enter the filename: ").strip()
-        data = read_json_file(filename)
-        if data is not None:
-            output_filename = input("Enter the output filename: ").strip()
-
-            if "asn" in data[0]:
-                headers = ["Flag", "ASN", "ASN Name"]
-                write_csv_file(output_filename, data, headers)
-
-            if "prefix" in data[0]:
-                headers = ["Prefix"]
-                write_csv_file(output_filename, data, headers)
-
-    # Cleaned up so these are only defined once
-    if choice in ["2", "3", "4"]:
+    if choice in ["1", "2", "3"]:
         options = Options()
         options.add_argument("start-maximized")
         options.add_argument("disable-infobars")
@@ -96,21 +70,19 @@ def main():
         elif os_type == "2":
             options.binary_location = "/usr/sbin/chromium"
 
-        # Debugging methods
         if debug:
             options.add_argument("--remote-debugging-port=9222")
 
         driver = webdriver.Chrome(options=options)
 
-        if choice in ["2", "3"]:
+        if choice in ["1", "2"]:
             asn = input("Enter the ASN: ").strip()
 
             if not asn.isdigit():
                 print("Invalid ASN.")
                 exit()
 
-        # Lookup an ASN
-        if choice == "2":
+        if choice == "1":
             shouldSort = input("Sort by country? (y/n): ").strip().lower() == "y"
             whatSort = input("What country? (e.g. US): ").strip() if shouldSort else None
             shouldDump = input("Dump results to .json file? (y/n): ").strip().lower() == "y"
@@ -179,7 +151,7 @@ def main():
                     print(f"Error while processing: {str(e)}")
 
         # Find prefixes from ASN dump
-        if choice == "3":
+        if choice == "2":
             filename = input("Enter the filename: ").strip()
             data = read_json_file(filename)
             if data is not None:
@@ -202,14 +174,13 @@ def main():
                             print(f"Error while processing: {str(e)}")
 
         # Generate iptables script from ASN dump
-        if choice == "4":
+        if choice == "3":
             filename = input("Enter the filename for the JSON peers file: ").strip()
             data = read_json_file(filename)
             if data is not None:
                 generate_iptables_script(data, 'iptables_rules.sh')
 
-    # Invalid choice
-    if choice not in ["2", "3", "4"]:
+    if choice not in ["1", "2", "3"]:
         print("Invalid choice. Exiting...")
 
 if __name__ == "__main__":
