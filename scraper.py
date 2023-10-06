@@ -70,29 +70,18 @@ def main():
     elif os_type == "2":
         options.binary_location = "/usr/sbin/chromium"
 
+    # Debugging mode
     if debug:
         options.add_argument("--remote-debugging-port=9222")
 
+    # Apply options
     driver = webdriver.Chrome(options=options)
 
-    if choice in ["1", "2", "3"]:
-        options = Options()
-        options.add_argument("start-maximized")
-        options.add_argument("disable-infobars")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--no-sandbox")
-        options.add_argument('--headless')
-        options.binary_location = "/usr/bin/chromium-browser"
-
-        if debug:
-            options.add_argument("--remote-debugging-port=9222")
-
-        driver = webdriver.Chrome(options=options)
-
+    # Ask the user for the ASN
     if choice == "1":
         asn = input("Enter the ASN: ").strip()
 
+        # Check if the ASN is a digit
         if not asn.isdigit():
             print("Invalid ASN.")
             exit()
@@ -105,6 +94,7 @@ def main():
         # Should we sort by flag?
         sort = input("Sort by country? (y/n): ").strip()
 
+        # If the user wants to sort by country, set shouldSort to True
         if sort.lower() == "y":
             shouldSort = True
 
@@ -114,6 +104,7 @@ def main():
         # Ask the user if they want to dump the results to a .json file
         dump = input("Dump results to .json file? (y/n): ")
 
+        # If the user wants to dump the results, set shouldDump to True
         if dump.lower() == "y":
             shouldDump = True
 
@@ -183,14 +174,16 @@ def main():
                             print(f'{flag} {asn} {asn_name}')
                     else:  # dont sort
                         print(f'{flag} {asn} {asn_name}')
-
+            # Error handling
             else:
                 print("Tbody not found.")
 
+            # Dump the data to a .json file
             if shouldDump:
                 with open('peers.json', 'w') as f:
                     json.dump(dumps, f)
 
+        # Prefixes
         if lookup_choice == "2":
             # Navigate to the URL
             url = f'https://bgp.tools/as/{asn}#prefixes'
@@ -209,11 +202,13 @@ def main():
                     dumps.append({
                         "prefix": prefix_text
                     })
-
+            
+            # Dump the data to a .json file
             if shouldDump:
                 with open('prefixes.json', 'w') as f:
                     json.dump(dumps, f)
-                    
+
+    # Find prefixes from ASN dump         
     if choice == "2":
         filename = input("Enter the filename: ").strip()
         data = read_json_file(filename)
@@ -231,6 +226,7 @@ def main():
                         css_selector = '#donotscrapebgptools-prefixlist-tbody td:nth-child(2) a'
                         elements = driver.find_elements(By.CSS_SELECTOR, css_selector)
                         prefixes = [element.text for element in elements]
+                        # Write the prefixes to the file
                         f.write("\n".join(prefixes) + "\n")
                     except Exception as e:
                         print(f"Error while processing: {str(e)}")
@@ -254,6 +250,7 @@ def main():
                         css_selector = '#donotscrapebgptools-prefixlist-tbody td:nth-child(2) a'
                         elements = driver.find_elements(By.CSS_SELECTOR, css_selector)
                         prefixes = [element.text for element in elements]
+                        # Write the prefixes to the file
                         f.write("\n".join(prefixes) + "\n")
                     except Exception as e:
                         print(f"Error while processing: {str(e)}")
