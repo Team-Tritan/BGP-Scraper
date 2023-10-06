@@ -52,7 +52,7 @@ def main():
     # Get the user's choice
     choice = get_user_choice()
 
-    # Set up Chrome options
+    # Set up Chrome options ONCE instead of 2-3 times
     options = Options()
     options.add_argument("start-maximized")
     options.add_argument("disable-infobars")
@@ -86,6 +86,7 @@ def main():
             print("Invalid ASN.")
             exit()
 
+        # Misc variables
         dumps = []
         shouldDump = False
         shouldSort = False
@@ -174,9 +175,6 @@ def main():
                             print(f'{flag} {asn} {asn_name}')
                     else:  # dont sort
                         print(f'{flag} {asn} {asn_name}')
-            # Error handling
-            else:
-                print("Tbody not found.")
 
             # Dump the data to a .json file
             if shouldDump:
